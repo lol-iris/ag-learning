@@ -8,7 +8,6 @@ import (
 	"github.com/lol-iris/aglearning/Models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 var DB *gorm.DB
@@ -26,16 +25,8 @@ func dbUrl() string {
 func Init() {
 	log.Println("Initializing database...")
 	url := dbUrl()
-	logMode := logger.Warn
-	// Set logging level
-	if os.Getenv("DEBUG") == "true" {
-		logMode = logger.Info
-		log.Println("Database logging level set to Info.")
-	}
 
-	database, err := gorm.Open(postgres.Open(url), &gorm.Config{
-		Logger: logger.Default.LogMode(logMode),
-	})
+	database, err := gorm.Open(postgres.Open(url), &gorm.Config{})
 	log.Println("Database connected.")
 
 	if err != nil {

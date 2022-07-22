@@ -19,7 +19,6 @@ require (
 require (
 	github.com/google/uuid v1.3.0
 	github.com/jinzhu/inflection v1.0.0 // indirect
-	github.com/joho/godotenv v1.4.0
 	gorm.io/driver/postgres v1.3.8
 	gorm.io/gorm v1.23.8
 )
