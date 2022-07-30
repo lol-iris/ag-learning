@@ -1,0 +1,85 @@
+services:
+  server:
+    container_name: aglearning_server
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - DATABASE_HOST=${DB_HOST}
+      - DATABASE_PORT=${DB_PORT}
+      - TEST_POSTGRES_ USER=${TEST_DB_USER}
+      - TEST_POSTGRES_PASSWORD=${TEST_DB_PASSWORD}
+      - TEST_POSTGRES_DB=${TEST_DB_NAME}
+      - TEST_DATABASE_HOST=${TEST_DB_HOST}
+      - TEST_DATABASE_PORT=${TEST_DB_PORT}
+    tty: true
+    build:
+      context: ./server
+      target: dev
+    ports:
+      - 8000:8080
+    restart: on-failure
+    volumes:
+      - ./server:/app
+    depends_on:
+      - postgresdb
+    networks:
+      - learning
+
+  postgresdb:
+    container_name: aglearning_db
+    build:
+      context: .
+      dockerfile: database.Dockerfile
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - DATABASE_HOST=${DB_HOST}
+    volumes:
+      - ./pg_data:/var/lib/postgresql/data
+    ports:
+      - '1234:5432'
+    networks:
+      - learning
+
+  postgresdb_test:
+    container_name: aglearning_testdb
+    build:
+      context: .
+      dockerfile: database.Dockerfile
+    environment:
+      - POSTGRES_USER=${TEST_DB_USER}
+      - POSTGRES_PASSWORD=${TEST_DB_PASSWORD}
+      - POSTGRES_DB=${TEST_DB_NAME}
+      - DATABASE_HOST=${TEST_DB_HOST}
+    volumes:
+      - ./pg_data_test:/var/lib/postgresql/data
+    ports:
+      - '4568:5432'
+    networks:
+      - learning
+
+  pgadmin:
+    container_name: aglearning_pgadmin
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    depends_on:
+      - postgresdb
+      - postgresdb_test
+    ports:
+      - "5050:80"
+    networks:
+      - learning
+    restart: unless-stopped
+
+volumes:
+  pg_data:
+  pg_data_test:
+
+# Networks to be created to facilitate communication between containers
+networks:
+  learning:
+    driver: bridge
