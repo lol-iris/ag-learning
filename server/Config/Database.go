@@ -3,8 +3,10 @@ package Config
 import (
 	"fmt"
 	"log"
+
 	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/lol-iris/aglearning/Models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -12,12 +14,25 @@ import (
 
 var DB *gorm.DB
 
+func getEnvVar(key string) string {
+	// load .env file
+	err := godotenv.Load(".env")
+
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
+
+	return os.Getenv(key)
+}
+
 func dbUrl() string {
-	dbHost := os.Getenv("DATABASE_HOST")
-	dbPort := os.Getenv("DATABASE_PORT")
-	dbName := os.Getenv("POSTGRES_DB")
-	dbUser := os.Getenv("POSTGRES_USER")
-	dbPassword := os.Getenv("POSTGRES_PASSWORD")
+
+	dbHost := getEnvVar("DB_HOST")
+	dbPort := getEnvVar("DB_PORT")
+	dbName := getEnvVar("DB_NAME")
+	dbUser := getEnvVar("DB_USER")
+	dbPassword := getEnvVar("DB_PASSWORD")
+	fmt.Println("The host from env:", dbHost)
 
 	return fmt.Sprintf("user=%s password=%s dbname=%s host=%s port=%s sslmode=disable", dbUser, dbPassword, dbName, dbHost, dbPort)
 }
@@ -33,7 +48,8 @@ func Init() {
 		log.Fatalln(err)
 	}
 
-	database.AutoMigrate(&Models.User{})
+	database.AutoMigrate(&Models.User{}, &Models.Course{}, &Models.Announcement{}, &Models.Tag{}, &Models.Section{}, &Models.SectionAttachment{}, &Models.SectionComment{}, &Models.Assignment{}, &Models.AssignmentSubmission{})
 	DB = database
 	log.Println("Database initialized.")
+
 }
