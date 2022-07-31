@@ -23,4 +23,5 @@ func main() {
 	Config.DB.FirstOrCreate(&user)
 	output, _ := json.MarshalIndent(user, "", "  ")
 	log.Println(string(output))
+
 }
